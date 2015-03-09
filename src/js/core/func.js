@@ -1,6 +1,11 @@
 define('summernote/core/func', function () {
   /**
+   * @class core.func
+   *
    * func utils (for high-order func's arg)
+   *
+   * @singleton
+   * @alternateClassName func
    */
   var func = (function () {
     var eq = function (itemA) {
@@ -11,6 +16,12 @@ define('summernote/core/func', function () {
 
     var eq2 = function (itemA, itemB) {
       return itemA === itemB;
+    };
+
+    var peq2 = function (propName) {
+      return function (itemA, itemB) {
+        return itemA[propName] === itemB[propName];
+      };
     };
 
     var ok = function () {
@@ -90,6 +101,7 @@ define('summernote/core/func', function () {
     return {
       eq: eq,
       eq2: eq2,
+      peq2: peq2,
       ok: ok,
       fail: fail,
       self: self,
