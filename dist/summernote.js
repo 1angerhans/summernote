@@ -6,7 +6,7 @@
  * Copyright 2013-2015 Alan Hong. and other contributors
  * summernote may be freely distributed under the MIT license./
  *
- * Date: 2015-02-08T09:50Z
+ * Date: 2015-03-22T20:55Z
  */
 (function (factory) {
   /* global define */
@@ -600,6 +600,14 @@
 
     var isBody = makePredByNodeName('BODY');
 
+    var isPre = makePredByNodeName('PRE');
+    
+    var isCode = makePredByNodeName('CODE');
+    
+    var isCodeBlock = function (node) {
+      return isPre(node) || isCode(node);
+    };
+    
     /**
      * returns whether nodeB is closest sibling of nodeA
      *
@@ -1384,6 +1392,9 @@
       isCell: isCell,
       isBlockquote: isBlockquote,
       isBodyContainer: isBodyContainer,
+      isPre : isPre,
+      isCode : isCode,
+      isCodeBlock : isCodeBlock,
       isAnchor: isAnchor,
       isDiv: makePredByNodeName('DIV'),
       isLi: isLi,
@@ -2757,6 +2768,7 @@
 
       var nextPara;
       // on paragraph: split paragraph
+      
       if (splitRoot) {
         nextPara = dom.splitTree(splitRoot, rng.getStartPoint());
 
@@ -3420,9 +3432,11 @@
     this.insertImage = function ($editable, sUrl, filename) {
       async.createImage(sUrl, filename).then(function ($image) {
         beforeCommand($editable);
+        var width = $image.width() >= $editable.width() ? '100%' : $image.width();
+
         $image.css({
           display: '',
-          width: Math.min($editable.width(), $image.width())
+          width: width
         });
         range.create().insertNode($image[0]);
         range.createFromNode($image[0]).collapse().select();
@@ -4236,7 +4250,7 @@
           // Cloning imageInput to clear element.
           $imageInput.replaceWith($imageInput.clone()
             .on('change', function () {
-              deferred.resolve(this.files || this.value);
+              deferred.resolve(this.files || [this.value]);
               $imageDialog.modal('hide');
             })
             .val('')
@@ -4696,6 +4710,24 @@
     };
 
     /**
+     * paste clipboard image
+     *
+     * @param {Event} event
+     */
+    var hPasteClipboardOnCodeBlock = function (event) {
+      var clipboardData = event.originalEvent.clipboardData;
+      var layoutInfo = makeLayoutInfo(event.currentTarget || event.target);
+      var $editable = layoutInfo.editable();
+      var rng = editor.createRange($editable);
+      
+      if (dom.isCodeBlock(rng.sc))  {
+        editor.insertText($editable, clipboardData.getData('text/plain'));
+        editor.afterCommand($editable);
+        event.preventDefault();
+      }
+    };
+
+    /**
      * `mousedown` event handler on $handle
      *  - controlSizing: resize image
      *
@@ -5015,6 +5047,7 @@
       layoutInfo.editable.on('keyup mouseup', hToolbarAndPopoverUpdate);
       layoutInfo.editable.on('scroll', hScroll);
       layoutInfo.editable.on('paste', hPasteClipboardImage);
+      layoutInfo.editable.on('paste', hPasteClipboardOnCodeBlock);
 
       // handler for handle and popover
       layoutInfo.handle.on('mousedown', hHandleMousedown);
@@ -5066,7 +5099,9 @@
       // enter, focus, blur, keyup, keydown
       if (options.onenter) {
         layoutInfo.editable.keypress(function (event) {
-          if (event.keyCode === key.ENTER) { options.onenter(event); }
+          if (event.keyCode === key.ENTER) {
+            options.onenter(event);
+          }
         });
       }
 

@@ -380,9 +380,11 @@ define([
     this.insertImage = function ($editable, sUrl, filename) {
       async.createImage(sUrl, filename).then(function ($image) {
         beforeCommand($editable);
+        var width = $image.width() >= $editable.width() ? '100%' : $image.width();
+
         $image.css({
           display: '',
-          width: Math.min($editable.width(), $image.width())
+          width: width
         });
         range.create().insertNode($image[0]);
         range.createFromNode($image[0]).collapse().select();

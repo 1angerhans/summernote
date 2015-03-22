@@ -44,6 +44,7 @@ define([
 
       var nextPara;
       // on paragraph: split paragraph
+      
       if (splitRoot) {
         nextPara = dom.splitTree(splitRoot, rng.getStartPoint());
 

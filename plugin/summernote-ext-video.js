@@ -232,7 +232,8 @@
      * @property {Function} events.showVideoDialog
      */
     events: {
-      showVideoDialog: function (layoutInfo) {
+      showVideoDialog: function (e, el, layoutInfo) {
+        
         var $dialog = layoutInfo.dialog(),
             $editable = layoutInfo.editable(),
             text = getTextOnRange($editable);

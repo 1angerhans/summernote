@@ -179,6 +179,14 @@ define([
 
     var isBody = makePredByNodeName('BODY');
 
+    var isPre = makePredByNodeName('PRE');
+    
+    var isCode = makePredByNodeName('CODE');
+    
+    var isCodeBlock = function (node) {
+      return isPre(node) || isCode(node);
+    };
+    
     /**
      * returns whether nodeB is closest sibling of nodeA
      *
@@ -963,6 +971,9 @@ define([
       isCell: isCell,
       isBlockquote: isBlockquote,
       isBodyContainer: isBodyContainer,
+      isPre : isPre,
+      isCode : isCode,
+      isCodeBlock : isCodeBlock,
       isAnchor: isAnchor,
       isDiv: makePredByNodeName('DIV'),
       isLi: isLi,
