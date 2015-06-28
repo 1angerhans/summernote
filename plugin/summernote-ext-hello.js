@@ -8,9 +8,8 @@
     factory(window.jQuery);
   }
 }(function ($) {
-  // template, editor
+  // template
   var tmpl = $.summernote.renderer.getTemplate();
-  var editor = $.summernote.eventHandler.getEditor();
 
   /**
    * @class plugin.hello 
@@ -27,29 +26,29 @@
      * @property {Function} buttons.helloImage   function to make button
      */
     buttons: { // buttons
-      hello: function () {
+      hello: function (lang, options) {
 
-        return tmpl.iconButton('fa fa-header', {
+        return tmpl.iconButton(options.iconPrefix + 'header', {
           event : 'hello',
           title: 'hello',
           hide: true
         });
       },
-      helloDropdown: function () {
+      helloDropdown: function (lang, options) {
 
 
         var list = '<li><a data-event="helloDropdown" href="#" data-value="summernote">summernote</a></li>';
         list += '<li><a data-event="helloDropdown" href="#" data-value="codemirror">Code Mirror</a></li>';
         var dropdown = '<ul class="dropdown-menu">' + list + '</ul>';
 
-        return tmpl.iconButton('fa fa-header', {
+        return tmpl.iconButton(options.iconPrefix + 'header', {
           title: 'hello',
           hide: true,
           dropdown : dropdown
         });
       },
-      helloImage : function () {
-        return tmpl.iconButton('fa fa-file-image-o', {
+      helloImage : function (lang, options) {
+        return tmpl.iconButton(options.iconPrefix + 'file-image-o', {
           event : 'helloImage',
           title: 'helloImage',
           hide: true
@@ -65,21 +64,21 @@
      * @property {Function} events.helloImage run function when button that has a 'helloImage' event name  fires click
      */
     events: { // events
-      hello: function (layoutInfo) {
+      hello: function (event, editor, layoutInfo) {
         // Get current editable node
         var $editable = layoutInfo.editable();
 
         // Call insertText with 'hello'
         editor.insertText($editable, 'hello ');
       },
-      helloDropdown: function (layoutInfo, value) {
+      helloDropdown: function (event, editor, layoutInfo, value) {
         // Get current editable node
         var $editable = layoutInfo.editable();
 
         // Call insertText with 'hello'
         editor.insertText($editable, 'hello ' + value + '!!!!');
       },
-      helloImage : function (layoutInfo) {
+      helloImage : function (event, editor, layoutInfo) {
         var $editable = layoutInfo.editable();
 
         var img = $('<img src="http://upload.wikimedia.org/wikipedia/commons/b/b0/NewTux.svg" />');
