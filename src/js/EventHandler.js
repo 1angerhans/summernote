@@ -200,149 +200,8 @@ define([
     var hScroll = function (event) {
       var layoutInfo = dom.makeLayoutInfo(event.currentTarget || event.target);
       //hide popover and handle when scrolled
-<<<<<<< HEAD
-      popover.hide(layoutInfo.popover());
-      handle.hide(layoutInfo.handle());
-    };
-
-    /**
-     * paste clipboard image
-     *
-     * @param {Event} event
-     */
-    var hPasteClipboardImage = function (event) {
-      var clipboardData = event.originalEvent.clipboardData;
-      var layoutInfo = makeLayoutInfo(event.currentTarget || event.target);
-      var $editable = layoutInfo.editable();
-
-      if (!clipboardData || !clipboardData.items || !clipboardData.items.length) {
-        var callbacks = $editable.data('callbacks');
-        // only can run if it has onImageUpload method
-        if (!callbacks.onImageUpload) {
-          return;
-        }
-
-        // save cursor
-        editor.saveNode($editable);
-        editor.saveRange($editable);
-
-        $editable.html('');
-
-        setTimeout(function () {
-          var $img = $editable.find('img');
-
-          if (!$img.length || $img[0].src.indexOf('data:') === -1) {
-            // pasted content
-            var html = $editable.html();
-
-            editor.restoreNode($editable);
-            editor.restoreRange($editable);
-
-            try {
-              // insert normal dom code
-              $(html).each(function () {
-                $editable.focus();
-                editor.insertNode($editable, this);
-              });
-            } catch (ex) {
-              // insert text
-              $editable.focus();
-              editor.insertText($editable, html);
-            }
-            return;
-          }
-
-          var datauri = $img[0].src;
-          var data = atob(datauri.split(',')[1]);
-          var array = new Uint8Array(data.length);
-          for (var i = 0; i < data.length; i++) {
-            array[i] = data.charCodeAt(i);
-          }
-
-          var blob = new Blob([array], { type : 'image/png'});
-          blob.name = 'clipboard.png';
-
-          editor.restoreNode($editable);
-          editor.restoreRange($editable);
-          insertImages(layoutInfo, [blob]);
-
-          editor.afterCommand($editable);
-        }, 0);
-
-        return;
-      }
-
-      var item = list.head(clipboardData.items);
-      var isClipboardImage = item.kind === 'file' && item.type.indexOf('image/') !== -1;
-
-      if (isClipboardImage) {
-        insertImages(layoutInfo, [item.getAsFile()]);
-      }
-
-      editor.afterCommand($editable);
-    };
-
-    /**
-     * paste clipboard image
-     *
-     * @param {Event} event
-     */
-    var hPasteClipboardOnCodeBlock = function (event) {
-      var clipboardData = event.originalEvent.clipboardData;
-      var layoutInfo = makeLayoutInfo(event.currentTarget || event.target);
-      var $editable = layoutInfo.editable();
-      var rng = editor.createRange($editable);
-      
-      if (dom.isCodeBlock(rng.sc))  {
-        editor.insertText($editable, clipboardData.getData('text/plain'));
-        editor.afterCommand($editable);
-        event.preventDefault();
-      }
-    };
-
-    /**
-     * `mousedown` event handler on $handle
-     *  - controlSizing: resize image
-     *
-     * @param {MouseEvent} event
-     */
-    var hHandleMousedown = function (event) {
-      if (dom.isControlSizing(event.target)) {
-        event.preventDefault();
-        event.stopPropagation();
-
-        var layoutInfo = makeLayoutInfo(event.target),
-            $handle = layoutInfo.handle(), $popover = layoutInfo.popover(),
-            $editable = layoutInfo.editable(),
-            $editor = layoutInfo.editor();
-
-        var target = $handle.find('.note-control-selection').data('target'),
-            $target = $(target), posStart = $target.offset(),
-            scrollTop = $document.scrollTop();
-
-        var isAirMode = $editor.data('options').airMode;
-
-        $document.on('mousemove', function (event) {
-          editor.resizeTo({
-            x: event.clientX - posStart.left,
-            y: event.clientY - (posStart.top - scrollTop)
-          }, $target, !event.shiftKey);
-
-          handle.update($handle, {image: target}, isAirMode);
-          popover.update($popover, {image: target}, isAirMode);
-        }).one('mouseup', function () {
-          $document.off('mousemove');
-          editor.afterCommand($editable);
-        });
-
-        if (!$target.data('ratio')) { // original ratio.
-          $target.data('ratio', $target.height() / $target.width());
-        }
-      }
-=======
       modules.popover.hide(layoutInfo.popover());
       modules.handle.hide(layoutInfo.handle());
->>>>>>> origin/master
     };
 
     var hToolbarAndPopoverMousedown = function (event) {
@@ -506,20 +365,12 @@ define([
       if (options.shortcuts) {
         this.bindKeyMap(layoutInfo, options.keyMap[agent.isMac ? 'mac' : 'pc']);
       }
-<<<<<<< HEAD
-      layoutInfo.editable.on('mousedown', hMousedown);
-      layoutInfo.editable.on('keyup mouseup', hToolbarAndPopoverUpdate);
-      layoutInfo.editable.on('scroll', hScroll);
-      layoutInfo.editable.on('paste', hPasteClipboardImage);
-      layoutInfo.editable.on('paste', hPasteClipboardOnCodeBlock);
-=======
       layoutInfo.editable().on('mousedown', hMousedown);
       layoutInfo.editable().on('keyup mouseup', hKeyupAndMouseup);
       layoutInfo.editable().on('scroll', hScroll);
 
       // handler for clipboard
       modules.clipboard.attach(layoutInfo, options);
->>>>>>> origin/master
 
       // handler for handle and popover
       modules.handle.attach(layoutInfo, options);
@@ -563,44 +414,8 @@ define([
       }
 
       // History
-<<<<<<< HEAD
-      var history = new History(layoutInfo.editable);
-      layoutInfo.editable.data('NoteHistory', history);
-
-      // basic event callbacks (lowercase)
-      // enter, focus, blur, keyup, keydown
-      if (options.onenter) {
-        layoutInfo.editable.keypress(function (event) {
-          if (event.keyCode === key.ENTER) {
-            options.onenter(event);
-          }
-        });
-      }
-
-      if (options.onfocus) { layoutInfo.editable.focus(options.onfocus); }
-      if (options.onblur) { layoutInfo.editable.blur(options.onblur); }
-      if (options.onkeyup) { layoutInfo.editable.keyup(options.onkeyup); }
-      if (options.onkeydown) { layoutInfo.editable.keydown(options.onkeydown); }
-      if (options.onpaste) { layoutInfo.editable.on('paste', options.onpaste); }
-
-      // callbacks for advanced features (camel)
-      if (options.onToolbarClick) { layoutInfo.toolbar.click(options.onToolbarClick); }
-      if (options.onChange) {
-        var hChange = function () {
-          editor.triggerOnChange(layoutInfo.editable);
-        };
-
-        if (agent.isMSIE) {
-          var sDomEvents = 'DOMCharacterDataModified DOMSubtreeModified DOMNodeInserted';
-          layoutInfo.editable.on(sDomEvents, hChange);
-        } else {
-          layoutInfo.editable.on('input', hChange);
-        }
-      }
-=======
       var history = new History(layoutInfo.editable());
       layoutInfo.editable().data('NoteHistory', history);
->>>>>>> origin/master
 
       // All editor status will be saved on editable with jquery's data
       // for support multiple editor with singleton object.

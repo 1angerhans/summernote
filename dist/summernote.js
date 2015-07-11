@@ -6,7 +6,7 @@
  * Copyright 2013-2015 Alan Hong. and other contributors
  * summernote may be freely distributed under the MIT license./
  *
- * Date: 2015-06-22T13:22Z
+ * Date: 2015-07-11T10:31Z
  */
 (function (factory) {
   /* global define */
@@ -3305,6 +3305,7 @@
 
       var nextPara;
       // on paragraph: split paragraph
+      
       if (splitRoot) {
         // if it is an empty line with li
         if (dom.isEmpty(splitRoot) && dom.isLi(splitRoot)) {
@@ -3767,9 +3768,11 @@
     this.insertImage = function ($editable, sUrl, filename) {
       async.createImage(sUrl, filename).then(function ($image) {
         beforeCommand($editable);
+        var width = $image.width() >= $editable.width() ? '100%' : $image.width();
+
         $image.css({
           display: '',
-          width: Math.min($editable.width(), $image.width())
+          width: width
         });
         range.create().insertNode($image[0]);
         range.createFromNodeAfter($image[0]).select();
