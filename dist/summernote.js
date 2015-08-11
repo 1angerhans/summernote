@@ -6,7 +6,7 @@
  * Copyright 2013-2015 Alan Hong. and other contributors
  * summernote may be freely distributed under the MIT license./
  *
- * Date: 2015-08-03T16:41Z
+ * Date: 2015-08-11T17:04Z
  */
 (function (factory) {
   /* global define */
@@ -713,6 +713,14 @@
 
     var isBody = makePredByNodeName('BODY');
 
+    var isPre = makePredByNodeName('PRE');
+    
+    var isCode = makePredByNodeName('CODE');
+    
+    var isCodeBlock = function (node) {
+      return isPre(node) || isCode(node);
+    };
+    
     /**
      * returns whether nodeB is closest sibling of nodeA
      *
@@ -1554,6 +1562,9 @@
       isCell: isCell,
       isBlockquote: isBlockquote,
       isBodyContainer: isBodyContainer,
+      isPre : isPre,
+      isCode : isCode,
+      isCodeBlock : isCodeBlock,
       isAnchor: isAnchor,
       isDiv: makePredByNodeName('DIV'),
       isLi: isLi,
@@ -3426,6 +3437,7 @@
 
       var nextPara;
       // on paragraph: split paragraph
+      
       if (splitRoot) {
         // if it is an empty line with li
         if (dom.isEmpty(splitRoot) && dom.isLi(splitRoot)) {
@@ -3903,9 +3915,11 @@
     this.insertImage = function ($editable, sUrl, filename) {
       async.createImage(sUrl, filename).then(function ($image) {
         beforeCommand($editable);
+        var width = $image.width() >= $editable.width() ? '100%' : $image.width();
+
         $image.css({
           display: '',
-          width: Math.min($editable.width(), $image.width())
+          width: width
         });
         range.create().insertNode($image[0]);
         range.createFromNodeAfter($image[0]).select();
