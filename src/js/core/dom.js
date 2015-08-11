@@ -77,13 +77,13 @@ define([
 
         // frame mode
       } else {
-        makeFinder = function (sClassName, sBaseElement) {
-          var $baseElement = sBaseElement ? $(sBaseElement) : $editor;
-          return function () { return $baseElement.find(sClassName); };
+        makeFinder = function (className, $base) {
+          $base = $base || $editor;
+          return function () { return $base.find(className); };
         };
 
         var options = $editor.data('options');
-        var dialogHolder = (options && options.dialogsInBody) ? document.body : null;
+        var $dialogHolder = (options && options.dialogsInBody) ? $(document.body) : null;
 
         return {
           editor: function () { return $editor; },
@@ -95,7 +95,7 @@ define([
           statusbar: makeFinder('.note-statusbar'),
           popover: makeFinder('.note-popover'),
           handle: makeFinder('.note-handle'),
-          dialog: makeFinder('.note-dialog', dialogHolder)
+          dialog: makeFinder('.note-dialog', $dialogHolder)
         };
       }
     };
@@ -156,7 +156,7 @@ define([
      * @see http://www.w3.org/html/wg/drafts/html/master/syntax.html#void-elements
      */
     var isVoid = function (node) {
-      return node && /^BR|^IMG|^HR/.test(node.nodeName.toUpperCase());
+      return node && /^BR|^IMG|^HR|^IFRAME|^BUTTON/.test(node.nodeName.toUpperCase());
     };
 
     var isPara = function (node) {
@@ -179,6 +179,7 @@ define([
     var isInline = function (node) {
       return !isBodyContainer(node) &&
              !isList(node) &&
+             !isHr(node) &&
              !isPara(node) &&
              !isTable(node) &&
              !isBlockquote(node);
@@ -187,6 +188,8 @@ define([
     var isList = function (node) {
       return node && /^UL|^OL/.test(node.nodeName.toUpperCase());
     };
+
+    var isHr = makePredByNodeName('HR');
 
     var isCell = function (node) {
       return node && /^TD|^TH/.test(node.nodeName.toUpperCase());
@@ -253,9 +256,10 @@ define([
 
     /**
      * blank HTML for cursor position
-     * - [workaround] for MSIE IE doesn't works with bogus br
+     * - [workaround] old IE only works with &nbsp;
+     * - [workaround] IE11 and other browser works with bogus br
      */
-    var blankHTML = agent.isMSIE ? '&nbsp;' : '<br>';
+    var blankHTML = agent.isMSIE && agent.browserVersion < 11 ? '&nbsp;' : '<br>';
 
     /**
      * @method nodeLength
@@ -769,7 +773,7 @@ define([
      */
     var makeOffsetPath = function (ancestor, node) {
       var ancestors = listAncestor(node, func.eq(ancestor));
-      return $.map(ancestors, position).reverse();
+      return ancestors.map(position).reverse();
     };
 
     /**
